@@ -1,0 +1,21 @@
+<form action="/checkIn" method="post" class="form-inline">
+    <input type="hidden" name="subject" value="{{title}}">
+    <div class="form-group">
+        <label for="uid">Name</label>
+        <input type="text" class="form-control" id="uid" name="uid">
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+
+<div class="row">
+    <div class="header">
+        <h3>User List, check in for {{title}}</h3>
+    </div>
+    <div>
+        <ul class="people_list">
+            {{#each people}}
+                <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+</div>
