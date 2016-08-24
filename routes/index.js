@@ -10,7 +10,9 @@ router.get('/', function (req, res, next) {
 
 
 router.get('/checkIn/:id', function (req, res) {
-    res.render('checkIn', {people: ['aaa', 'bbb'], title: req.params.id});
+    myRedis.getSubjectValues(req.params.id).then(function (data) {
+        res.render('checkIn', {people: data, title: req.params.id});
+    });
 });
 
 router.post('/checkIn', function (req, res) {
@@ -18,11 +20,17 @@ router.post('/checkIn', function (req, res) {
     var uid = req.body.uid;
     console.log(subject);
     console.log(uid);
-    if(_.isEmpty(subject) || _.isEmpty(uid)){
-        res.redirect('/');
+    if (_.isEmpty(subject) || _.isEmpty(uid)) {
+        if (!_.isEmpty(subject)) {
+            res.redirect('/checkIn/' + subject);
+        } else {
+            res.redirect('/');
+        }
         return;
     }
-    res.send(uid + ' ' + subject);
+    myRedis.checkIn(uid, subject).then(function () {
+        res.redirect('/checkIn/' + subject);
+    });
 });
 
 module.exports = router;

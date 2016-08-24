@@ -8,6 +8,7 @@ var option = {
 
 option.password = process.env.password;
 
+var Q = require('q');
 var redis = require("redis"),
     client = redis.createClient(option);
 
@@ -26,15 +27,35 @@ client.hkeys("hash key", function (err, replies) {
     replies.forEach(function (reply, i) {
         console.log("    " + i + ": " + reply);
     });
-    client.quit();
+    //client.quit();
 });
 
-client.rpush(['frameworks', 'angularjs', 'backbone'], function(err, reply) {
-    console.log(reply); //prints 2
-});
+// client.rpush(['frameworks', 'angularjs', 'backbone'], function (err, reply) {
+//     console.log(reply); //prints 2
+// });
 
-exports.checkIn = function(uid,subject){
-    client.rpush([subject, uid], function(err, reply) {
-        console.log(reply); //prints 2
+exports.checkIn = function (uid, subject) {
+    return Q.Promise(function (resolve, reject) {
+        client.sadd(subject, uid, function (err, reply) {
+            console.log('reply:' + reply); //prints 2
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
+exports.getSubjectValues = function (subject, count) {
+    count = count || 100;
+    return Q.Promise(function (resolve, reject) {
+        client.smembers(subject, function (err, replies) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(replies);
+            }
+        });
     });
 };
